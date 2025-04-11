@@ -9,7 +9,7 @@ Prometheus metrics via an HTTP endpoint.
 This tool acts as a bridge between MQTT messages (typically from IoT devices
 like those running Tasmota, ESPHome, etc.) and a Prometheus monitoring system.
 It dynamically creates Prometheus gauges based on the MQTT topic structure and
-the fields within the JSON payload of the messages.
+the fields within the JSON payload of the messages. Only tested with Tasmota.
 
 ## Features
 
