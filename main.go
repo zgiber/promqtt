@@ -78,7 +78,6 @@ type gaugeRegistry struct {
 }
 
 // newGaugeRegistry creates a new registry for gauges associated with a specific prometheus registry.
-// ... (remains the same)
 func newGaugeRegistry(promReg prometheus.Registerer) *gaugeRegistry {
 	return &gaugeRegistry{
 		vecs:         make(map[string]*prometheus.GaugeVec),
@@ -93,7 +92,6 @@ var metricLabels = []string{"topic", "device", "type", "sensor"}
 
 // updateMetric finds or creates a GaugeVec (using the custom registry via the factory)
 // and sets the value for the given labels.
-// ... (remains the same)
 func (r *gaugeRegistry) updateMetric(name string, help string, labels prometheus.Labels, value float64) error {
 	r.lock.Lock()
 	defer r.lock.Unlock()
@@ -123,7 +121,6 @@ func (r *gaugeRegistry) updateMetric(name string, help string, labels prometheus
 
 // startPrometheusServer starts the HTTP server for Prometheus metrics endpoint,
 // using the provided custom registry.
-// ... (remains the same)
 func startPrometheusServer(port int, registry *prometheus.Registry) {
 	listenAddr := fmt.Sprintf(":%d", port)
 	log.Printf("Starting Prometheus metrics endpoint on %s/metrics (using custom registry)\n", listenAddr)
@@ -142,13 +139,11 @@ func startPrometheusServer(port int, registry *prometheus.Registry) {
 // --- MQTT Message Processing ---
 
 // topicInfo holds the parsed data from an MQTT topic.
-// Changed: Removed BaseMetricName
 type topicInfo struct {
 	Labels prometheus.Labels
 }
 
 // parseTopic extracts labels from the topic string.
-// Changed: Expects exactly 3 segments: topic/device/type
 func parseTopic(topic string) (*topicInfo, error) {
 	parts := strings.Split(topic, "/")
 	// Changed: Check for exactly 3 parts
@@ -176,7 +171,6 @@ func parseTopic(topic string) (*topicInfo, error) {
 }
 
 // processJSONPayload parses the JSON and updates metrics via the registry.
-// Changed: Metric name derived from JSON keys now.
 func processJSONPayload(payload []byte, topicInfo *topicInfo, registry *gaugeRegistry) error {
 	var data map[string]any
 	if err := json.Unmarshal(payload, &data); err != nil {
@@ -235,7 +229,6 @@ func processJSONPayload(payload []byte, topicInfo *topicInfo, registry *gaugeReg
 }
 
 // onMessageReceived is the handler called by the MQTT client for incoming messages.
-// No changes needed here structurally, relies on updated parseTopic and processJSONPayload.
 func onMessageReceived(registry *gaugeRegistry) mqtt.MessageHandler {
 	return func(client mqtt.Client, msg mqtt.Message) {
 		topic := msg.Topic()
@@ -261,7 +254,6 @@ func onMessageReceived(registry *gaugeRegistry) mqtt.MessageHandler {
 // --- MQTT Client ---
 
 // createMQTTClientOptions configures the MQTT client.
-// Changed: Uses cfg.MQTTURL directly.
 func createMQTTClientOptions(cfg *Config, registry *gaugeRegistry) *mqtt.ClientOptions {
 	opts := mqtt.NewClientOptions()
 	// Changed: Use the single URL from config
@@ -291,7 +283,6 @@ func createMQTTClientOptions(cfg *Config, registry *gaugeRegistry) *mqtt.ClientO
 }
 
 // connectMQTT establishes the connection to the MQTT broker.
-// Changed: Log message uses opts.Servers[0] which now comes from the single URL.
 func connectMQTT(opts *mqtt.ClientOptions) (mqtt.Client, error) {
 	client := mqtt.NewClient(opts)
 	// Log the actual broker URL being used
@@ -306,7 +297,6 @@ func connectMQTT(opts *mqtt.ClientOptions) (mqtt.Client, error) {
 }
 
 // subscribe attempts to subscribe to the given topic.
-// ... (remains the same)
 func subscribe(client mqtt.Client, topic string) {
 	qos := 1                                         // At least once delivery
 	token := client.Subscribe(topic, byte(qos), nil) // Use default handler set in options
@@ -328,7 +318,6 @@ func subscribe(client mqtt.Client, topic string) {
 var metricNameRegex = regexp.MustCompile(`[^a-zA-Z0-9_]+`)
 
 // cleanMetricName converts a string to a Prometheus-compatible metric name.
-// ... (remains the same)
 func cleanMetricName(name string) string {
 	name = strings.ToLower(name)
 	name = metricNameRegex.ReplaceAllString(name, "_")
@@ -338,7 +327,6 @@ func cleanMetricName(name string) string {
 }
 
 // convertToFloat64 attempts to convert various numeric types to float64.
-// ... (remains the same)
 func convertToFloat64(v any) (float64, bool) {
 	switch val := v.(type) {
 	case float64:
@@ -367,7 +355,6 @@ func convertToFloat64(v any) (float64, bool) {
 }
 
 // randomString generates a simple random alphanumeric string.
-// ... (remains the same)
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	// Seeding with time is okay for non-crypto purposes like client IDs
@@ -381,7 +368,6 @@ func randomString(n int) string {
 }
 
 // waitForShutdownSignal blocks until a SIGINT or SIGTERM is received.
-// ... (remains the same)
 func waitForShutdownSignal() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
