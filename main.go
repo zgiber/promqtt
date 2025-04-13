@@ -378,7 +378,7 @@ func waitForShutdownSignal() {
 
 // --- Main Orchestration ---
 
-// Main function remains structurally the same, orchestrating the calls.
+// Main function orchestrates the calls.
 func main() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
